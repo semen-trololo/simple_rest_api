@@ -4,23 +4,7 @@ from flask import Flask, jsonify, abort
 from flask import make_response
 from flask import request
 import os
-
 app = Flask(__name__)
-
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web',
-        'done': False
-    }
-]
 
 
 @app.errorhandler(404)
@@ -60,10 +44,12 @@ def create_repositories():
     print(request.json)
     if not request.json or not 'name' in request.json:
         abort(400)
+    if os.path.isdir(os.sep.join(['git', request.json['name']])):
+        abort(400)
     os.mkdir(os.sep.join(['git', request.json['name']]))
     dir_rep = []
     patch = []
-    tmp = os.listdir('git\\')
+    tmp = os.listdir('git')
     for i in tmp:
         if os.path.isfile(os.sep.join(['git', i])):
             pass
