@@ -47,6 +47,9 @@ def create_repositories():
     if os.path.isdir(os.sep.join(['git', request.json['name']])):
         abort(400)
     os.mkdir(os.sep.join(['git', request.json['name']]))
+    os.mkdir(os.sep.join(['git', request.json['name']]))
+    cmd = 'cd ' + os.sep.join(['git', request.json['name']]) + ' &' + ' git init' # or for linux <;>
+    os.system(cmd)
     dir_rep = []
     patch = []
     tmp = os.listdir('git')
