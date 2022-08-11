@@ -1,19 +1,47 @@
 # pip install flask-restful
-# pip install Flask-HTTPAuth
+
+# pip install Flask-JWT-Extended
+
 from flask import Flask, jsonify, abort
 from flask import make_response
 from flask import request
+from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 import os
+
 app = Flask(__name__)
+jwt = JWTManager(app)
+
+# JWT Config
+app.config["JWT_SECRET_KEY"] = "this-is-secret-key"
 
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
+@app.route("/login", methods=["POST"])
+def login():
+    if request.is_json:
+        user = request.json["user"]
+        password = request.json["password"]
+    else:
+        user = request.form["user"]
+        password = request.form["password"]
+
+    if user == 'test':
+        access_token = create_access_token(identity=user)
+        return jsonify(message="Login Succeeded!", access_token=access_token), 201
+    else:
+        return jsonify(message="Bad User or Password"), 401
+
+@app.route("/dashboard")
+#JWT Authorization
+@jwt_required()
+def dasboard():
+    return jsonify(message="Welcome!")
 
 @app.route('/api/v1.0/git', methods=['GET'])
-#@auth.login_required
+
 def get_tasks():
     dir_rep = []
     patch = []
@@ -28,7 +56,7 @@ def get_tasks():
 
 
 @app.route('/api/v1.0/git/<string:repositories>', methods=['GET'])
-#@auth.login_required
+
 def get_task(repositories):
     tmp = os.listdir('git\\')
     for i in tmp:
@@ -39,7 +67,7 @@ def get_task(repositories):
 
 
 @app.route('/api/v1.0/git', methods=['POST'])
-#@auth.login_required
+
 def create_repositories():
     print(request.json)
     if not request.json or not 'name' in request.json:
@@ -47,9 +75,13 @@ def create_repositories():
     if os.path.isdir(os.sep.join(['git', request.json['name']])):
         abort(400)
     os.mkdir(os.sep.join(['git', request.json['name']]))
-    os.mkdir(os.sep.join(['git', request.json['name']]))
     cmd = 'cd ' + os.sep.join(['git', request.json['name']]) + ' &' + ' git init' # or for linux <;>
     os.system(cmd)
+    if 'clone' in request.json:
+        if len(request.json['clone']):
+            url = request.json['clone']
+            cmd = 'cd ' + os.sep.join(['git', request.json['name']]) + ' &' + ' git clone ' + str(url)
+            os.system(cmd)
     dir_rep = []
     patch = []
     tmp = os.listdir('git')
@@ -63,7 +95,7 @@ def create_repositories():
 
 
 @app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['DELETE'])
-#@auth.login_required
+
 def delete_task(task_id):
     for id in tasks:
         if id['id'] == task_id:
