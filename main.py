@@ -35,6 +35,10 @@ def uri_validator(x):
 def not_found(error):
     return make_response(jsonify(message='Not found'), 404)
 
+@app.errorhandler(500)
+def not_found(error):
+    return make_response(jsonify(message='Error Server'), 500)
+
 @app.errorhandler(400)
 def bad_request(error):
     return make_response(jsonify(message='Bad Request'), 400)
