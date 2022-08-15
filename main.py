@@ -30,6 +30,19 @@ def uri_validator(x):
     except:
         return False
 
+def git_dir_dict():
+    json_rep = {}
+    dir_rep = []
+    tmp = os.listdir(ENV_PATCH)
+    for i in tmp:
+        if os.path.isfile(os.sep.join([ENV_PATCH, i])):
+            pass
+        else:
+            dir_rep.append(i)
+    for rep in dir_rep:
+        tmp = os.listdir(os.sep.join([ENV_PATCH, rep]))
+        json_rep[rep] = tmp
+    return json_rep
 
 @app.errorhandler(404)
 def not_found(error):
@@ -59,86 +72,28 @@ def login():
     else:
         return jsonify(message="Bad User or Password"), 401
 
-@jwt_required()
+#@jwt_required()
 @app.route('/api/v1.0/git', methods=['GET'])
 def get_list_git():
-    json_rep = {}
-    dir_rep = []
-    tmp = os.listdir(ENV_PATCH)
-    for i in tmp:
-        if os.path.isfile(os.sep.join([ENV_PATCH, i])):
-            pass
-        else:
-            dir_rep.append(i)
-    for rep in dir_rep:
-        tmp = os.listdir(os.sep.join([ENV_PATCH, rep]))
-        json_rep[rep] = tmp
-    return jsonify(json_rep) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
+    return jsonify(git_dir_dict()) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
 @jwt_required()
 @app.route('/api/v1.0/clone', methods=['POST'])
 def create_clone():
     if not request.json or not 'clone' in request.json:
         abort(400)
-
     if len(request.json['clone']):
-        f = open('clone.log', 'r')
-        tmp = f.readlines()
-        f.close()
-        if (request.json['clone'] + '\n') not in tmp:
-            if uri_validator(request.json['clone']):
-                url = request.json['clone']
-                cmd = 'cd ' + ENV_PATCH + ' ;' + ' git clone ' + str(url)
-                error = os.system(cmd)
-                if error:
-                    f.close()
-                    abort(500)
-                f = open('clone.log', 'a+')
-                f.write(request.json['clone'] + '\n')
-                f.close()
-            else:
-                abort(400)
+        if uri_validator(request.json['clone']):
+            url = request.json['clone']
+            cmd = 'cd ' + ENV_PATCH + ' ;' + ' git clone ' + str(url)
+            error = os.system(cmd)
+            if error:
+                abort(500)
+            return jsonify(git_dir_dict()), 201
         else:
             abort(400)
     else:
         abort(400)
-
-    dir_rep = []
-    patch = []
-    tmp = os.listdir(ENV_PATCH)
-    for i in tmp:
-        if os.path.isfile(os.sep.join([ENV_PATCH, i])):
-            pass
-        else:
-            dir_rep.append(i)
-    return jsonify(repositories=dir_rep), 201
-
-@jwt_required()
-@app.route('/api/v1.0/git', methods=['POST'])
-def create_repositories():
-    print(request.json)
-    if not request.json or not 'name' in request.json:
-        abort(400)
-    if os.path.isdir(os.sep.join([ENV_PATCH, request.json['name']])):
-        abort(400)
-    try:
-        os.mkdir(os.sep.join([ENV_PATCH, request.json['name']]))
-    except:
-        abort(500)
-    cmd = 'cd ' + os.sep.join([ENV_PATCH, request.json['name']]) + ' ;' + ' git init' # or for linux <;> win <&>
-    error = os.system(cmd)
-    if error:
-        os.rmdir(os.sep.join([ENV_PATCH, request.json['name']]))
-        abort(500)
-    dir_rep = []
-    patch = []
-    tmp = os.listdir(ENV_PATCH)
-    for i in tmp:
-        if os.path.isfile(os.sep.join([ENV_PATCH, i])):
-            pass
-        else:
-            dir_rep.append(i)
-    return jsonify(repositories=dir_rep), 201
 
 
 #@app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['DELETE'])
@@ -152,3 +107,4 @@ def create_repositories():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
+#    app.run(debug=True, host='0.0.0.0')
