@@ -59,32 +59,21 @@ def login():
     else:
         return jsonify(message="Bad User or Password"), 401
 
-
-#@jwt_required()
 @jwt_required()
 @app.route('/api/v1.0/git', methods=['GET'])
-#@auth.login_required
 def get_list_git():
+    json_rep = {}
     dir_rep = []
-    patch = []
     tmp = os.listdir(ENV_PATCH)
     for i in tmp:
         if os.path.isfile(os.sep.join([ENV_PATCH, i])):
             pass
         else:
             dir_rep.append(i)
-            patch.append(os.sep.join([ENV_PATCH, i]))
-    return jsonify(repositories=dir_rep, patch=patch) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
-
-@jwt_required()
-@app.route('/api/v1.0/git/<string:repositories>', methods=['GET'])
-def get_dir_rep(repositories):
-    tmp = os.listdir(ENV_PATCH)
-    for i in tmp:
-        if i == repositories:
-            tmp = os.listdir(os.sep.join([ENV_PATCH, i]))
-            return jsonify(dir_list=tmp)
-    abort(404)
+    for rep in dir_rep:
+        tmp = os.listdir(os.sep.join([ENV_PATCH, rep]))
+        json_rep[rep] = tmp
+    return jsonify(json_rep) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
 @jwt_required()
 @app.route('/api/v1.0/clone', methods=['POST'])
@@ -122,8 +111,7 @@ def create_clone():
             pass
         else:
             dir_rep.append(i)
-            patch.append(os.sep.join([ENV_PATCH, i]))
-    return jsonify(repositories=dir_rep, patch=patch), 201
+    return jsonify(repositories=dir_rep), 201
 
 @jwt_required()
 @app.route('/api/v1.0/git', methods=['POST'])
@@ -137,7 +125,7 @@ def create_repositories():
         os.mkdir(os.sep.join([ENV_PATCH, request.json['name']]))
     except:
         abort(500)
-    cmd = 'cd ' + os.sep.join([ENV_PATCH, request.json['name']]) + ' ;' + ' git init' # or for linux <;>
+    cmd = 'cd ' + os.sep.join([ENV_PATCH, request.json['name']]) + ' ;' + ' git init' # or for linux <;> win <&>
     error = os.system(cmd)
     if error:
         os.rmdir(os.sep.join([ENV_PATCH, request.json['name']]))
@@ -150,8 +138,7 @@ def create_repositories():
             pass
         else:
             dir_rep.append(i)
-            patch.append(os.sep.join([ENV_PATCH, i]))
-    return jsonify(repositories=dir_rep, patch=patch), 201
+    return jsonify(repositories=dir_rep), 201
 
 
 #@app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['DELETE'])
