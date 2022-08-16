@@ -45,6 +45,15 @@ def git_dir_dict():
         json_rep[rep] = tmp
     return json_rep
 
+def delete_dir(path):
+    """deletes the path entirely"""
+    if oswindows:
+        cmd = "RMDIR "+ path +" /s /q"
+    else:
+        cmd = "rm -rf "+path
+    return getstatusoutput(cmd)
+
+
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify(message='Not found'), 404)
@@ -97,13 +106,15 @@ def create_clone():
         abort(400)
 
 
-#@app.route('/todo/api/v1.0/tasks/<int:task_id>', methods=['DELETE'])
-#def delete_task(task_id):
-    #for id in tasks:
-        #if id['id'] == task_id:
-            #tasks.remove(id)
-            #return jsonify({'result': True})
-    #abort(404)
+@app.route('/api/v1.0/<string:name>', methods=['DELETE'])
+def delete_repositorie(name):
+    tmp = os.listdir(ENV_PATCH)
+    if name in tmp:
+        error = delete_dir(os.sep.join([ENV_PATCH, name]))
+        if error[0] != 0:
+            abort(500)
+        return jsonify(git_dir_dict())
+    abort(404)
 
 
 if __name__ == '__main__':
