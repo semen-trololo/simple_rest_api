@@ -33,6 +33,7 @@ def uri_validator(x):
 
 def git_dir_dict():
     json_rep = {}
+    tmp_mass = []
     dir_rep = []
     tmp = os.listdir(ENV_PATCH)
     for i in tmp:
@@ -41,17 +42,21 @@ def git_dir_dict():
         else:
             dir_rep.append(i)
     for rep in dir_rep:
+        tmp_dir = {}
         tmp = os.listdir(os.sep.join([ENV_PATCH, rep]))
-        json_rep[rep] = tmp
+        tmp_dir['name'] = rep
+        tmp_dir['files'] = tmp
+        tmp_mass.append(tmp_dir)
+    json_rep['repos'] = tmp_mass
     return json_rep
 
-def delete_dir(path):
+def delete_dir(path, oswin):
     """deletes the path entirely"""
-    if oswindows:
-        cmd = "RMDIR "+ path +" /s /q"
+    if oswind:
+        cmd = "RMDIR " + path + " /s /q"
     else:
-        cmd = "rm -rf "+path
-    return getstatusoutput(cmd)
+        cmd = "rm -rf " + path
+    return os.getstatusoutput(cmd)
 
 
 @app.errorhandler(404)
@@ -110,7 +115,7 @@ def create_clone():
 def delete_repositorie(name):
     tmp = os.listdir(ENV_PATCH)
     if name in tmp:
-        error = delete_dir(os.sep.join([ENV_PATCH, name]))
+        error = delete_dir(os.sep.join([ENV_PATCH, name]), False)
         if error[0] != 0:
             abort(500)
         return jsonify(git_dir_dict())
