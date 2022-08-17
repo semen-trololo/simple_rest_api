@@ -9,7 +9,7 @@ from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 
 from urllib.parse import urlparse
 from configparser import ConfigParser
-import os
+import os, subprocess
 # Загруска переменных среды из конфига.
 env = ConfigParser()
 env.read('config.ini')
@@ -31,6 +31,7 @@ def uri_validator(x):
     except:
         return False
 
+
 def git_dir_dict():
     json_rep = {}
     tmp_mass = []
@@ -50,26 +51,30 @@ def git_dir_dict():
     json_rep['repos'] = tmp_mass
     return json_rep
 
+
 def delete_dir(path, oswin):
     """deletes the path entirely"""
-    if oswind:
+    if oswin:
         cmd = "RMDIR " + path + " /s /q"
     else:
         cmd = "rm -rf " + path
-    return os.getstatusoutput(cmd)
+    return subprocess.getstatusoutput(cmd)
 
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify(message='Not found'), 404)
 
+
 @app.errorhandler(500)
 def not_found(error):
     return make_response(jsonify(message='Error Server'), 500)
 
+
 @app.errorhandler(400)
 def bad_request(error):
     return make_response(jsonify(message='Bad Request'), 400)
+
 
 @app.route("/api/v1.0/login", methods=["POST"])
 def login():
@@ -87,12 +92,14 @@ def login():
     else:
         return jsonify(message="Bad User or Password"), 401
 
+
 #@jwt_required()
 @app.route('/api/v1.0/git', methods=['GET'])
 def get_list_git():
     return jsonify(git_dir_dict()) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
-@jwt_required()
+
+#@jwt_required()
 @app.route('/api/v1.0/clone', methods=['POST'])
 def create_clone():
     if not request.json or not 'clone' in request.json:
@@ -111,7 +118,7 @@ def create_clone():
         abort(400)
 
 
-@app.route('/api/v1.0/<string:name>', methods=['DELETE'])
+@app.route('/api/v1.0/git/<string:name>', methods=['DELETE'])
 def delete_repositorie(name):
     tmp = os.listdir(ENV_PATCH)
     if name in tmp:
@@ -122,6 +129,27 @@ def delete_repositorie(name):
     abort(404)
 
 
+@app.route('/api/v1.0/pull', methods=['POST'])
+def pull_repositorie():
+    if not request.json or not 'name' in request.json:
+        abort(400)
+    else:
+        tmp = os.listdir(ENV_PATCH)
+        if request.json['name'] not in tmp:
+            abort(404)
+        else:
+            cmd = 'cd ' + os.sep.join([ENV_PATCH, str(request.json['name'])]) + ' ;' + ' git pull'
+            error = os.system(cmd)
+            if error:
+                abort(500)
+            cmd = os.sep.join([ENV_PATCH, request.json['name']])
+            out = subprocess.check_output(['git', 'log', '--oneline', '-1'
+                                              , '--pretty=format:"%h - %an, %ar : %s"'], cwd=cmd)
+            out = out.decode('utf-8')
+
+            return jsonify(message=out)
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
-#    app.run(debug=True, host='0.0.0.0')
+    #app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
+    app.run(debug=True, host='0.0.0.0')
+
