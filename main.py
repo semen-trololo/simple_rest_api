@@ -18,6 +18,7 @@ ENV_PATCH = env['config']['PATCH']
 ENV_USER = env['config']['USER']
 ENV_PASSWORD = env['config']['PASSWORD']
 app = Flask(__name__)
+app.config["JSONIFY_MIMETYPE"] = "application/json; charset=utf-8"
 jwt = JWTManager(app)
 
 # JWT Config
@@ -96,6 +97,8 @@ def login():
 #@jwt_required()
 @app.route('/api/v1.0/git', methods=['GET'])
 def get_list_git():
+    #response = flask.jsonify({'some': 'data'})
+    #response.headers.add('Access-Control-Allow-Origin', '*')
     return jsonify(git_dir_dict()) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
 
