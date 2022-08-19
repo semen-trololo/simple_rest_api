@@ -1,12 +1,12 @@
 # pip install flask-restful
 # pip install Flask-JWT-Extended
-
+# pip install Flask-Cors
 
 from flask import Flask, jsonify, abort
 from flask import make_response
 from flask import request
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
-
+from flask_cors import CORS
 from urllib.parse import urlparse
 from configparser import ConfigParser
 import os, subprocess
@@ -20,7 +20,8 @@ ENV_PASSWORD = env['config']['PASSWORD']
 app = Flask(__name__)
 app.config["JSONIFY_MIMETYPE"] = "application/json; charset=utf-8"
 jwt = JWTManager(app)
-
+# enable CORS
+CORS(app)
 # JWT Config
 app.config["JWT_SECRET_KEY"] = env['config']['JWT_SECRET_KEY']
 
@@ -89,13 +90,14 @@ def login():
 
     if user == ENV_USER and password == ENV_PASSWORD:
         access_token = create_access_token(identity=user)
-        return jsonify(message="Login Succeeded!", access_token=access_token), 201
+        return jsonify(access_token=access_token), 201
     else:
         return jsonify(message="Bad User or Password"), 401
 
 
-#@jwt_required()
+
 @app.route('/api/v1.0/git', methods=['GET'])
+@jwt_required()
 def get_list_git():
     #response = flask.jsonify({'some': 'data'})
     #response.headers.add('Access-Control-Allow-Origin', '*')
@@ -105,11 +107,11 @@ def get_list_git():
 #@jwt_required()
 @app.route('/api/v1.0/clone', methods=['POST'])
 def create_clone():
-    if not request.json or not 'clone' in request.json:
+    if not request.json or not 'url' in request.json:
         abort(400)
-    if len(request.json['clone']):
-        if uri_validator(request.json['clone']):
-            url = request.json['clone']
+    if len(request.json['url']):
+        if uri_validator(request.json['url']):
+            url = request.json['url']
             cmd = 'cd ' + ENV_PATCH + ' ;' + ' git clone ' + str(url)
             error = os.system(cmd)
             if error:
