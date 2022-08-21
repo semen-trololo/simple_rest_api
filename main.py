@@ -97,24 +97,24 @@ def login():
 
 
 @app.route('/api/v1.0/git', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 def get_list_git():
     #response = flask.jsonify({'some': 'data'})
     #response.headers.add('Access-Control-Allow-Origin', '*')
     return jsonify(git_dir_dict()) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
 
-#@jwt_required()
 @app.route('/api/v1.0/clone', methods=['POST'])
+#@jwt_required()
 def create_clone():
     if not request.json or not 'url' in request.json:
         abort(400)
     if len(request.json['url']):
         if uri_validator(request.json['url']):
             url = request.json['url']
-            cmd = 'cd ' + ENV_PATCH + ' ;' + ' git clone ' + str(url)
-            error = os.system(cmd)
-            if error:
+            try:
+                subprocess.check_output(['git', 'clone', str(url)], cwd=ENV_PATCH)
+            except subprocess.CalledProcessError:
                 abort(500)
             return jsonify(git_dir_dict()), 201
         else:
@@ -143,18 +143,14 @@ def pull_repositorie():
         if request.json['name'] not in tmp:
             abort(404)
         else:
-            cmd = 'cd ' + os.sep.join([ENV_PATCH, str(request.json['name'])]) + ' ;' + ' git pull'
-            error = os.system(cmd)
-            if error:
+            try:
+                cmd = os.sep.join([ENV_PATCH, request.json['name']])
+                out = subprocess.check_output(['git', 'pull'], cwd=cmd)
+                out = out.decode('utf-8', errors='ignore')
+            except subprocess.CalledProcessError:
                 abort(500)
-            cmd = os.sep.join([ENV_PATCH, request.json['name']])
-            out = subprocess.check_output(['git', 'log', '--oneline', '-1'
-                                              , '--pretty=format:"%h - %an, %ar : %s"'], cwd=cmd)
-            out = out.decode('utf-8')
-
             return jsonify(message=out)
 
 if __name__ == '__main__':
     #app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
     app.run(debug=True, host='0.0.0.0')
-
