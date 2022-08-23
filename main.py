@@ -89,7 +89,7 @@ def login():
         #password = request.form["password"]
 
     if user == ENV_USER and password == ENV_PASSWORD:
-        access_token = create_access_token(identity=user)
+        access_token = create_access_token(identity=user, expires_delta=False)
         return jsonify(access_token=access_token), 201
     else:
         return jsonify(message="Bad User or Password"), 401
