@@ -1,0 +1,48 @@
+@import "~bootstrap/scss/bootstrap";
+
+body {
+  background-color: var(--bs-dark);
+  background-image: var(--bs-gradient);
+}
+
+Form {
+  max-width: 450px;
+  min-width: 160px;
+    Button {
+      min-width: 80px;
+    }
+}
+
+.spinner-border {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.list-group {
+  margin: 0 auto;
+  padding-bottom: 3px;
+  max-width: 60%;
+  &:hover {
+    padding: 0;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    max-width: 80%;
+    transition: 0.3s;
+  }
+}
+
+.list-group-item {
+  background-color: $gray-500;
+
+  &:hover {
+    background-color: $gray-400;
+    box-shadow: 25px 29px 55px 0px rgba(0, 0, 0, 0.66) inset;
+  }
+}
+
+.clone {
+  margin: 0 auto;
+  padding-bottom: 3px;
+  max-width: 60%;
+}
