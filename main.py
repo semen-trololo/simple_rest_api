@@ -34,20 +34,27 @@ def uri_validator(x):
         return False
 
 
-def list_files_repo(path, list_files):
-    files_list = []
-    dir_list =[]
+def list_files_repo(path):
+    tmp = []
     for entry in os.scandir(path):
         if entry.is_dir():
             if entry.name != '.git':
-                dir_list.append(entry.name)
-                list_files = list_files_repo(os.sep.join([path, entry.name]), list_files)
+                tmp_dict = {
+                "name": entry.name,
+                "type": "dir",
+                "items": list_files_repo(os.sep.join([path, entry.name]))
+                }
+                tmp.append(tmp_dict)
         elif entry.is_file():
-            files_list.append(entry.name)
+            tmp_dict = {
+            "name": entry.name,
+            "type": "file",
+            "items": []
+        }
+            tmp.append(tmp_dict)
         elif entry.is_symlink():
             pass
-    list_files[path] = {"dir_list": dir_list, "file_list": files_list}
-    return list_files
+    return tmp
 
 
 def delete_dir(path, oswin):
@@ -97,8 +104,8 @@ def login():
 def get_list_git():
     #response = flask.jsonify({'some': 'data'})
     #response.headers.add('Access-Control-Allow-Origin', '*')
-    list_tmp = {"id": ENV_PATCH}
-    return jsonify(list_files_repo(ENV_PATCH, list_tmp)) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
+
+    return jsonify(repositories=list_files_repo(ENV_PATCH)) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
 
 @app.route('/api/v1.0/clone', methods=['POST'])
@@ -113,8 +120,7 @@ def create_clone():
                 subprocess.check_output(['git', 'clone', str(url)], cwd=ENV_PATCH)
             except subprocess.CalledProcessError:
                 abort(500)
-            list_tmp = {"id": ENV_PATCH}
-            return jsonify(list_files_repo(ENV_PATCH, list_tmp)), 201
+            return jsonify(repositories=list_files_repo(ENV_PATCH)), 201
         else:
             abort(400)
     else:
@@ -129,8 +135,7 @@ def delete_repositorie(name):
         error = delete_dir(os.sep.join([ENV_PATCH, name]), False)
         if error[0] != 0:
             abort(500)
-        list_tmp = {"id": ENV_PATCH}
-        return jsonify(list_files_repo(ENV_PATCH, list_tmp))
+        return jsonify(repositories=list_files_repo(ENV_PATCH))
     abort(404)
 
 
@@ -150,8 +155,7 @@ def pull_repositorie():
                 out = out.decode('utf-8', errors='ignore')
             except subprocess.CalledProcessError:
                 abort(500)
-            list_tmp = {"id": ENV_PATCH}
-            return jsonify(message=out, data=list_files_repo(ENV_PATCH, list_tmp))
+            return jsonify(message=out, data=list_files_repo(ENV_PATCH))
 
 if __name__ == '__main__':
     #app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
