@@ -34,24 +34,20 @@ def uri_validator(x):
         return False
 
 
-def git_dir_dict():
-    json_rep = {}
-    tmp_mass = []
-    dir_rep = []
-    tmp = os.listdir(ENV_PATCH)
-    for i in tmp:
-        if os.path.isfile(os.sep.join([ENV_PATCH, i])):
+def list_files_repo(path, list_files):
+    files_list = []
+    dir_list =[]
+    for entry in os.scandir(path):
+        if entry.is_dir():
+            if entry.name != '.git':
+                dir_list.append(entry.name)
+                list_files = list_files_repo(os.sep.join([path, entry.name]), list_files)
+        elif entry.is_file():
+            files_list.append(entry.name)
+        elif entry.is_symlink():
             pass
-        else:
-            dir_rep.append(i)
-    for rep in dir_rep:
-        tmp_dir = {}
-        tmp = os.listdir(os.sep.join([ENV_PATCH, rep]))
-        tmp_dir['name'] = rep
-        tmp_dir['files'] = tmp
-        tmp_mass.append(tmp_dir)
-    json_rep['repos'] = tmp_mass
-    return json_rep
+    list_files[path] = {"dir_list": dir_list, "file_list": files_list}
+    return list_files
 
 
 def delete_dir(path, oswin):
@@ -101,11 +97,12 @@ def login():
 def get_list_git():
     #response = flask.jsonify({'some': 'data'})
     #response.headers.add('Access-Control-Allow-Origin', '*')
-    return jsonify(git_dir_dict()) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
+    list_tmp = {"id": ENV_PATCH}
+    return jsonify(list_files_repo(ENV_PATCH, list_tmp)) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
 
 
 @app.route('/api/v1.0/clone', methods=['POST'])
-#@jwt_required()
+@jwt_required()
 def create_clone():
     if not request.json or not 'url' in request.json:
         abort(400)
@@ -116,7 +113,8 @@ def create_clone():
                 subprocess.check_output(['git', 'clone', str(url)], cwd=ENV_PATCH)
             except subprocess.CalledProcessError:
                 abort(500)
-            return jsonify(git_dir_dict()), 201
+            list_tmp = {"id": ENV_PATCH}
+            return jsonify(list_files_repo(ENV_PATCH, list_tmp)), 201
         else:
             abort(400)
     else:
@@ -124,17 +122,20 @@ def create_clone():
 
 
 @app.route('/api/v1.0/git/<string:name>', methods=['DELETE'])
+@jwt_required()
 def delete_repositorie(name):
     tmp = os.listdir(ENV_PATCH)
     if name in tmp:
         error = delete_dir(os.sep.join([ENV_PATCH, name]), False)
         if error[0] != 0:
             abort(500)
-        return jsonify(git_dir_dict())
+        list_tmp = {"id": ENV_PATCH}
+        return jsonify(list_files_repo(ENV_PATCH, list_tmp))
     abort(404)
 
 
 @app.route('/api/v1.0/pull', methods=['POST'])
+@jwt_required()
 def pull_repositorie():
     if not request.json or not 'name' in request.json:
         abort(400)
@@ -149,7 +150,8 @@ def pull_repositorie():
                 out = out.decode('utf-8', errors='ignore')
             except subprocess.CalledProcessError:
                 abort(500)
-            return jsonify(message=out)
+            list_tmp = {"id": ENV_PATCH}
+            return jsonify(message=out, data=list_files_repo(ENV_PATCH, list_tmp))
 
 if __name__ == '__main__':
     #app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
