@@ -76,7 +76,7 @@ def bad_request(error):
 
 @app.route("/api/v1.0/login", methods=["POST"])
 def login():
-    if request.is_json or 'user' in request.json or 'password' in request.json:
+    if request.json or 'user' in request.json or 'password' in request.json:
         user = request.json["user"]
         password = request.json["password"]
     else:
