@@ -93,7 +93,7 @@ def login():
 
     if user == ENV_USER and password == ENV_PASSWORD:
         access_token = create_access_token(identity=user, expires_delta=False)
-        return jsonify(access_token=access_token), 201
+        return jsonify(access_token=access_token), 200
     else:
         return jsonify(message="Bad User or Password"), 401
 
