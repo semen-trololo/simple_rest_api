@@ -190,9 +190,8 @@ def pull_repositorie():
 def discovery_list():
     if not request.json or not 'path' in request.json:
         abort(400)
-    tmp = {"repositories": discovery_path(str(request.json['path'])}
-    path = {"path": request.json['path']}
-    return jsonify(tmp, path), 200
+    tmp = {"repositories": discovery_path(str(request.json['path']), "path": request.json['path']}
+    return jsonify(tmp), 200
 
 
 if __name__ == '__main__':
