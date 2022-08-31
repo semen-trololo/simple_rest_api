@@ -57,6 +57,33 @@ def list_files_repo(path):
     return tmp
 
 
+def discovery_path(path):
+    try:
+        list_dir = os.scandir(os.sep.join([ENV_PATCH, path]))
+    except:
+        abort(404)
+    tmp = []
+    for entry in list_dir:
+        if entry.is_dir():
+            if entry.name != '.git':
+                tmp_dict = {
+                "name": entry.name,
+                "dir": True,
+                "path" : os.sep.join([path, entry.name])
+                }
+                tmp.append(tmp_dict)
+        elif entry.is_file():
+            tmp_dict = {
+            "name": entry.name,
+            "dir": False,
+            "path": ""
+        }
+            tmp.append(tmp_dict)
+        elif entry.is_symlink():
+            pass
+    return tmp
+
+
 def delete_dir(path, oswin):
     """deletes the path entirely"""
     if oswin:
@@ -156,6 +183,16 @@ def pull_repositorie():
             except subprocess.CalledProcessError:
                 abort(500)
             return jsonify(message=out, data=list_files_repo(ENV_PATCH))
+
+        
+@app.route('/api/v1.0/discovery', methods=['POST'])
+@jwt_required()
+def discovery_list():
+    if not request.json or not 'path' in request.json:
+        abort(400)
+    tmp = discovery_path(str(request.json['path'])
+    return jsonify(tmp), 200
+
 
 if __name__ == '__main__':
     #app.run(debug=True, host='0.0.0.0', ssl_context=('ssl/cert.pem', 'ssl/key.pem'))
