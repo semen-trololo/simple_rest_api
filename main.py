@@ -147,7 +147,7 @@ def create_clone():
                 subprocess.check_output(['git', 'clone', str(url)], cwd=ENV_PATCH)
             except subprocess.CalledProcessError:
                 abort(500)
-            return jsonify(repositories=list_files_repo(ENV_PATCH)), 201
+            return jsonify(repositories=discovery_path("")), 201
         else:
             abort(400)
     else:
@@ -162,7 +162,7 @@ def delete_repositorie(name):
         error = delete_dir(os.sep.join([ENV_PATCH, name]), False)
         if error[0] != 0:
             abort(500)
-        return jsonify(repositories=list_files_repo(ENV_PATCH))
+        return jsonify(repositories=discovery_path(""))
     abort(404)
 
 
@@ -182,7 +182,7 @@ def pull_repositorie():
                 out = out.decode('utf-8', errors='ignore')
             except subprocess.CalledProcessError:
                 abort(500)
-            return jsonify(message=out, data=list_files_repo(ENV_PATCH))
+            return jsonify(message=out)
 
         
 @app.route('/api/v1.0/discovery', methods=['POST'])
@@ -191,7 +191,7 @@ def discovery_list():
     if not request.json or not 'path' in request.json:
         abort(400)
     tmp = discovery_path(str(request.json['path'])
-    return jsonify(tmp), 200
+    return jsonify(repositories=tmp), 200
 
 
 if __name__ == '__main__':
