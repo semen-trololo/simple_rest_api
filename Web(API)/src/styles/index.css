@@ -1,0 +1,245 @@
+body {
+  font-family: Tahoma;
+  background-color: #2B2B2C;
+  color: #fcaa67;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 15px 0 15px;
+  justify-content: space-between;
+  background-color: #313336;
+  height: 4rem;
+  border-radius: 0.5rem;
+  box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.05) inset;
+  margin: 0.5rem;
+}
+
+.header-icon {
+  all: unset;
+  font-size: 3rem;
+}
+.header-icon:hover {
+  color: #b0413e;
+  transition: 0.3s;
+}
+
+.header-title {
+  font-size: 2rem;
+  margin-left: 10px;
+  margin-right: auto;
+}
+
+.header-logout-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  background-color: #b0413e;
+  border: 1px solid #838383;
+  height: 2rem;
+  width: 7rem;
+  font-size: 1rem;
+  font-weight: bolder;
+}
+.header-logout-btn :only-child {
+  margin-right: 5px;
+}
+.header-logout-btn:hover {
+  background-color: #A69CAC;
+  transition: 0.3s;
+}
+
+.rep-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #313336;
+  border-radius: 0.5rem;
+  margin: 0.5rem;
+}
+
+.rep-path-wrapper {
+  width: 600px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #3c3f41;
+  border: 1px solid black;
+  max-height: 2.25rem;
+  box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.12);
+}
+
+.rep-back-icon {
+  font-size: 2.25rem;
+  border-right: 1px solid black;
+  margin-right: 0.5rem;
+}
+
+.rep-path-title {
+  font-size: 1rem;
+}
+
+.rep-list {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+  width: 600px;
+}
+
+.rep-list-item {
+  width: 600px;
+  display: inline-grid;
+  grid-template-columns: 30px 400px 60px 60px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.25rem;
+  background-color: #3c3f41;
+  height: 2.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.25rem;
+  box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.12);
+}
+
+.rep-list-item#folder {
+  order: -1;
+}
+
+.rep-list-item#file {
+  order: 1;
+}
+
+.rep-list-folder-icon {
+  margin-left: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.rep-list-folder-icon:hover {
+  font-size: 2rem;
+  transition: 0.1s;
+}
+
+.rep-action-btn {
+  all: unset;
+  background-color: #28AFB0;
+  color: #2B2B2C;
+  height: 1.5rem;
+  width: 3rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: bolder;
+  border-radius: 0.25rem;
+  margin-right: 10px;
+}
+.rep-action-btn:hover {
+  background-color: #A69CAC;
+  transition: 0.3s;
+}
+
+.clone-wrapper {
+  width: 600px;
+  display: inline-grid;
+  grid-template-columns: 530px auto;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.25rem;
+  background-color: #3c3f41;
+  height: 2.5rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.25rem;
+  box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.12);
+}
+
+.clone-input {
+  all: unset;
+  height: 2rem;
+  border-radius: 0.25rem;
+  background-color: #2B2B2C;
+  color: #A69CAC;
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.clone-btn {
+  all: unset;
+  background-color: #28AFB0;
+  color: #2B2B2C;
+  height: 1.5rem;
+  width: 3rem;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: bolder;
+  border-radius: 0.25rem;
+  margin-right: 10px;
+}
+.clone-btn:hover {
+  background-color: #A69CAC;
+  transition: 0.3s;
+}
+
+.login-wrapper {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #313336;
+  border-radius: 0.5rem;
+  margin: 20% auto 0;
+}
+
+.login-title {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+.login-title :only-child {
+  margin-right: 5px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.login-form-control {
+  margin-bottom: 1rem;
+  width: 200px;
+  height: 2rem;
+  font-size: 1.5rem;
+}
+
+.login-btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  background-color: #4db03e;
+  border: 1px solid #838383;
+  height: 2rem;
+  width: 7rem;
+  font-size: 1rem;
+  font-weight: bolder;
+}
+.login-btn :only-child {
+  margin-right: 5px;
+}
+.login-btn:hover {
+  background-color: #A69CAC;
+  transition: 0.3s;
+}
+
+/*# sourceMappingURL=index.css.map */
