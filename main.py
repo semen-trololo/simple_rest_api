@@ -34,29 +34,6 @@ def uri_validator(x):
         return False
 
 
-def list_files_repo(path):
-    tmp = []
-    for entry in os.scandir(path):
-        if entry.is_dir():
-            if entry.name != '.git':
-                tmp_dict = {
-                "name": entry.name,
-                "type": "dir",
-                "items": list_files_repo(os.sep.join([path, entry.name]))
-                }
-                tmp.append(tmp_dict)
-        elif entry.is_file():
-            tmp_dict = {
-            "name": entry.name,
-            "type": "file",
-            "items": []
-        }
-            tmp.append(tmp_dict)
-        elif entry.is_symlink():
-            pass
-    return tmp
-
-
 def discovery_path(path):
     try:
         list_dir = os.scandir(os.sep.join([ENV_PATCH, path]))
@@ -125,16 +102,6 @@ def login():
         return jsonify(message="Bad User or Password"), 401
 
 
-
-@app.route('/api/v1.0/git', methods=['GET'])
-#@jwt_required()
-def get_list_git():
-    #response = flask.jsonify({'some': 'data'})
-    #response.headers.add('Access-Control-Allow-Origin', '*')
-
-    return jsonify(repositories=list_files_repo(ENV_PATCH)) # jsonify(key1=value1 ,key2=value2 ,key3=value3)
-
-
 @app.route('/api/v1.0/clone', methods=['POST'])
 @jwt_required()
 def create_clone():
@@ -190,7 +157,7 @@ def pull_repositorie():
 def discovery_list():
     if not request.json or not 'path' in request.json:
         abort(400)
-    tmp = {"repositories": discovery_path(str(request.json['path']), "path": request.json['path']}
+    tmp = {"repositories": discovery_path(str(request.json['path'])), "path": request.json['path']}
     return jsonify(tmp), 200
 
 
